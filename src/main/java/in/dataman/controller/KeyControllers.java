@@ -4,14 +4,18 @@ package in.dataman.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import in.dataman.service.RedisService;
 import in.dataman.util.AESUtil;
 import in.dataman.util.KeyGenerator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.UUID;
 
 @RestController
 public class KeyControllers {
@@ -21,6 +25,9 @@ public class KeyControllers {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private RedisService redisService;
 
     @GetMapping("/test-encryption")
     public String testEncryption() throws Exception {
@@ -96,6 +103,7 @@ public class KeyControllers {
             JsonNode jsonNode = objectMapper.readTree(decryptedMessage);
 
 
+            System.out.println(keyGenerator.getSecretKey());
 
             // Return the JSON as the response
             return ResponseEntity.ok(jsonNode);
@@ -103,5 +111,56 @@ public class KeyControllers {
             return ResponseEntity.status(500).body(objectMapper.createObjectNode().put("error", "Error decrypting message: " + e.getMessage()));
         }
     }
+
+    @PostMapping("/check-data-in-header")
+    public ResponseEntity<?> sendDataInHeader(){
+
+        HashMap<String, String> response = new HashMap<>();
+        response.put("name", "Abhay kumar pandey");
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("key", "jai shri krishna");
+        headers.add("token","lskdjflkjoifelkjfo43v85un54398fun9834fun498375fc39n8yu895gfby43987f5nh4");
+
+        // Also include the JSON in the response body (optional)
+
+        String id = UUID.randomUUID().toString();
+
+        redisService.saveValue(id, "authKey");
+
+        headers.add("authkey", id);
+
+        System.out.println(id);
+        return ResponseEntity.ok().headers(headers).body(response);
+    }
+
+
+    @PostMapping("/post-candidate-details")
+    public ResponseEntity<?> addCandidateDetail(
+            @RequestHeader("authKey") String authKey,
+            @RequestBody JsonNode payload){
+        System.out.println(authKey);
+        Object storedAuthKey = redisService.getValue(authKey);
+        if(storedAuthKey == null){
+            return ResponseEntity.ok("You are unauthorized user");
+        }
+
+        redisService.deleteValue(authKey);
+        System.out.println(payload.toPrettyString());
+
+
+        HttpHeaders headers = new HttpHeaders();
+        String id = UUID.randomUUID().toString();
+
+        redisService.saveValue(id, "authKey");
+
+        headers.add("authkey", id);
+
+        System.out.println(id);
+
+        return ResponseEntity.ok().headers(headers).body(payload);
+
+    }
+
 }
 
