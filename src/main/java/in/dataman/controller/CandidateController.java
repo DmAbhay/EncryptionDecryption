@@ -50,7 +50,7 @@ public class CandidateController {
         candidate.setAge(candidateData.get("age").asInt());
         candidate.setName(candidateData.get("name").asText());
         candidate.setSalary(candidateData.get("salary").asDouble());
-
+        System.out.println("Ashwani pandey!!!!!!!!!!!!!!!!!!!!!!!");
         return ResponseEntity.ok(candidateService.addCandidateDetails(candidate));
     }
 
