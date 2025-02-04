@@ -2,11 +2,15 @@ package in.dataman.controller;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import in.dataman.encryptionDecryption.EncryptionDecryptionUtil;
 import in.dataman.entity.Candidate;
+import in.dataman.exception.JsonNodeException;
+import in.dataman.exception.MissingFieldException;
 import in.dataman.service.CandidateService;
 import in.dataman.util.AESUtil;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -31,6 +35,12 @@ public class CandidateController {
     public SecretKey getSecretKey() {
         return encryptionDecryptionUtil.getSecretKey(); // Send the secret key to the frontend
     }
+
+    @GetMapping("/test-new")
+    public String test(){
+        return "Jai Shree Ram";
+    }
+
 
 
     @PostMapping("/save-candidate-details")
@@ -116,5 +126,111 @@ public class CandidateController {
                 return ResponseEntity.status(500).body("Error encrypting JSON: " + e.getMessage());
             }
         }
+    }
+
+    @PostMapping("/post-candidate-details-test-01")
+    public ResponseEntity<?> postCandiate(@RequestBody JsonNode payload){
+
+
+        ObjectNode responseNode = objectMapper.createObjectNode();
+
+        // Validate required fields
+        if (!payload.has("id") || !payload.has("name") || !payload.has("gender") || !payload.has("age")) {
+            responseNode.put("error", "Missing required fields");
+            responseNode.put("status", "failed");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(responseNode);
+        }
+
+
+        Long id = payload.get("id").asLong();
+        String name = payload.get("name").asText();
+        String gender = payload.get("gender").asText();
+        Integer age = payload.get("age").asInt();
+
+
+
+        responseNode.put("id", id);
+        responseNode.put("Your Name", name);
+        responseNode.put("gender", gender);
+        responseNode.put("age", age);
+
+        return ResponseEntity.ok(responseNode);
+
+
+    }
+
+
+    @PostMapping("/post-candidate-details-test-02")
+    public ResponseEntity<?> postCandiateDataq(@RequestBody JsonNode payload){
+
+        ObjectNode responseNode = objectMapper.createObjectNode();
+
+        try{
+            // Validate required fields and throw MissingFieldException if any are missing
+            if (!payload.has("id") || !payload.has("name") || !payload.has("gender") || !payload.has("age")) {
+                throw new MissingFieldException("Missing required fields: id, name, gender, age");
+            }
+
+            Long id = payload.get("id").asLong();
+            String name = payload.get("name").asText();
+            String gender = payload.get("gender").asText();
+            Integer age = payload.get("age").asInt();
+
+            responseNode.put("id", id);
+            responseNode.put("Your Name", name);
+            responseNode.put("gender", gender);
+            responseNode.put("age", age);
+
+            return ResponseEntity.ok(responseNode);
+
+        }catch (MissingFieldException e){
+            return ResponseEntity.ok("Some field in json is Missing");
+        }
+    }
+
+    @PostMapping("/post-candidate-details-test-03")
+    public ResponseEntity<?> postCandiateDatar(@RequestBody JsonNode payload) {
+
+        ObjectNode responseNode = objectMapper.createObjectNode();
+
+        // Validate required fields and throw MissingFieldException if any are missing
+        if (!payload.has("id") || !payload.has("name") || !payload.has("gender") || !payload.has("age")) {
+            throw new MissingFieldException("Missing required fields: id, name, gender, age");
+        }
+
+        Long id = payload.get("id").asLong();
+        String name = payload.get("name").asText();
+        String gender = payload.get("gender").asText();
+        Integer age = payload.get("age").asInt();
+
+        responseNode.put("id", id);
+        responseNode.put("Your Name", name);
+        responseNode.put("gender", gender);
+        responseNode.put("age", age);
+
+        return ResponseEntity.ok(responseNode);
+    }
+
+    @PostMapping("/post-candidate-details-test-04")
+    public ResponseEntity<?> postCandiateDatas(@RequestBody JsonNode payload) {
+
+        ObjectNode responseNode = objectMapper.createObjectNode();
+
+        // Validate required fields and throw MissingFieldException if any are missing
+        if (!payload.has("id") || !payload.has("name") || !payload.has("gender") || !payload.has("age")) {
+            throw new JsonNodeException("missing field");
+        }
+
+        Long id = payload.get("id").asLong();
+        String name = payload.get("name").asText();
+        String gender = payload.get("gender").asText();
+        Integer age = payload.get("age").asInt();
+
+        responseNode.put("id", id);
+        responseNode.put("Your Name", name);
+        responseNode.put("gender", gender);
+        responseNode.put("age", age);
+
+        return ResponseEntity.ok(responseNode);
     }
 }

@@ -1,7 +1,5 @@
 package in.dataman.controller;
 
-
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import in.dataman.service.RedisService;
@@ -16,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.UUID;
-
+@CrossOrigin(origins = "http://localhost:5173")
 @RestController
 public class KeyControllers {
 
@@ -119,8 +117,8 @@ public class KeyControllers {
         response.put("name", "Abhay kumar pandey");
 
         HttpHeaders headers = new HttpHeaders();
-        headers.add("key", "jai shri krishna");
-        headers.add("token","lskdjflkjoifelkjfo43v85un54398fun9834fun498375fc39n8yu895gfby43987f5nh4");
+        //headers.add("key", "jai shri krishna");
+        //headers.add("token","lskdjflkjoifelkjfo43v85un54398fun9834fun498375fc39n8yu895gfby43987f5nh4");
 
         // Also include the JSON in the response body (optional)
 
@@ -128,7 +126,8 @@ public class KeyControllers {
 
         redisService.saveValue(id, "authKey");
 
-        headers.add("authkey", id);
+        //headers.add("authkey", id);
+        headers.add("Authorization", id); // Or use "X-Auth-Key"
 
         System.out.println(id);
         return ResponseEntity.ok().headers(headers).body(response);
