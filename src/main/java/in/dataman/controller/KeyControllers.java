@@ -5,6 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import in.dataman.service.RedisService;
 import in.dataman.util.AESUtil;
 import in.dataman.util.KeyGenerator;
+import org.mymath.MyMath;
+import org.mymath.config.ConfigReader;
+import org.mymath.dbs.FetchDatabaseName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
@@ -125,6 +128,29 @@ public class KeyControllers {
         String id = UUID.randomUUID().toString();
 
         redisService.saveValue(id, "authKey");
+        MyMath myMath = new MyMath();
+        System.out.println(myMath.add(12,14));
+
+        System.out.println(myMath.divide(12, 23));
+
+        String configPath = "D:/config/config.properties";
+        String myConfigFilePath = "C:\\Users\\Dataman\\myconfigfile\\config.properties";
+
+        ConfigReader configReader = new ConfigReader(configPath);
+        System.out.println(configReader.getProperty("sqlHostName"));
+
+        ConfigReader configReaderNew = new ConfigReader(myConfigFilePath);
+        System.out.println(configReaderNew.getProperty("sqlPassword"));
+
+        FetchDatabaseName fetchDatabaseName = new FetchDatabaseName();
+
+        String sqlQuery = "SELECT TOP 1 cmp.centralData_Path " +
+                "FROM productLicensedto plt " +
+                "LEFT JOIN company cmp ON cmp.comp_Code = plt.latestCompCode";
+
+        System.out.println(fetchDatabaseName.getDatabaseName(sqlQuery));
+
+
 
         //headers.add("authkey", id);
         headers.add("Authorization", id); // Or use "X-Auth-Key"
@@ -146,6 +172,8 @@ public class KeyControllers {
 
         redisService.deleteValue(authKey);
         System.out.println(payload.toPrettyString());
+
+
 
 
         HttpHeaders headers = new HttpHeaders();
